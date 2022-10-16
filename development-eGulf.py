@@ -42,41 +42,53 @@ class USER:
         except mysql.Error as err:
             print(err)
     
-    def viewInStock(self): #move the input and print statements into main function
+    def viewInStock(self, choice, category): #move the input and print statements into main function
         self.cur = sqlConn.cursor()
-        self.choice = input("You may view 'all' items or a 'category'\n")
-        if(self.choice == 'category'):
-            self.query("SELECT DISTINCT(category) FROM inventory")
+        if(choice == 'category'):
+            self.query = ("SELECT DISTINCT(category) FROM inventory")
             self.cur.execute(self.query)
             self.res = self.cur.fetchall()
+            
+            print('Categories: ', end='')
             for row in self.res:
-                print(row)
-            self.choice = input('Please select a category: ')
-            self.query = ("SELECT itemName, price FROM inventory WHERE (quantity > 0 AND category = %s)")
-            self.cur.execute(self.query,[self.choice])
+                print(row, end=' ')
+            print('\n')
+            self.cat = category
+            self.query = ("SELECT * FROM inventory WHERE (category = %s AND quantity > 0)")
+            self.cur.execute(self.query,[self.cat])
             self.res = self.cur.fetchall()
+            headers = [i[0] for i in self.cur.description]
+            print(headers)
             self.cur.close()
             return self.res
-        elif(self.choice == 'all'):
-            self.query = ("SELECT itemName, price FROM inventory WHERE (quantity > 0)")
-            self.cur.execute(self.query,[self.choice])
+        elif(choice == 'all'):
+            self.query = ("SELECT * FROM inventory WHERE (quantity > 0)")
+            self.cur.execute(self.query)
             self.res = self.cur.fetchall()
+            headers = [i[0] for i in self.cur.description]
+            print(headers)
             self.cur.close()
             return self.res
         else:
             print('Choice Error')
-    def searchInStock(self): #move the input and print statements into main function
+    def viewCart(self,user):
         self.cur = sqlConn.cursor()
-        self.search = input("Search For... ")
-        self.query = ("SELECT itemName, price FROM inventory WHERE (itemName LIKE '%{self.search}%' AND quantity > 0)")
-        self.cur.execute(self.query)
+        pass
+        self.res = self.cur.fetchall()
+        self.cur.close()
+        return self.res
+    def searchInStock(self, searchParam): #move the input and print statements into main function
+        self.cur = sqlConn.cursor()
+        item = '%'+searchParam+'%'
+        self.query = ("SELECT itemName, price FROM inventory WHERE ((itemName LIKE %s OR category = %s) AND quantity > 0)")
+        self.cur.execute(self.query,(item, searchParam))
         self.res = self.cur.fetchall()
         self.cur.close()
         return self.res
     def viewInventory(self, choice, category):
         self.cur = sqlConn.cursor()
         if(choice == 'category'):
-            self.query = ("SELECT DISTINCT(category) FROM inventory category")
+            self.query = ("SELECT DISTINCT(category) FROM inventory")
             self.cur.execute(self.query)
             self.res = self.cur.fetchall()
             
@@ -142,10 +154,10 @@ class USER:
     def logout(self):
         return True
 
-    def viewOrders(self, orderID):
+    def viewOrders(self, orderID, uname):
         self.cur = sqlConn.cursor()
-        self.query = ("SELECT * FROM orders WHERE orderID LIKE %s")
-        self.cur.execute(self.query, [orderID])
+        self.query = ("SELECT * FROM orders WHERE orderID LIKE %s AND orderName LIKE %s")
+        self.cur.execute(self.query, (orderID, uname))
         self.res = self.cur.fetchall()
         headers = [i[0] for i in self.cur.description]
         print(headers)
@@ -219,7 +231,7 @@ def menu(admin, uname, userObj):
                 os.system('clear')
                 defaultVal = '%'
                 print("List of Orders: ")
-                orders = userObj.viewOrders(defaultVal)
+                orders = userObj.viewOrders(defaultVal, defaultVal)
                 for row in orders:
                     print(row)
                 choice = int(input("Please make a selection..."))
@@ -235,7 +247,75 @@ def menu(admin, uname, userObj):
                 "2. Search Items By Category\n"
                 "3. View Items In Stock\n"
                 "4. View Account\n"
-                "5. View Cart")
+                "5. View Cart\n"
+                "6. View Orders\n"
+                "7. Logout")
+            choice = int(input("Please make a selection..."))
+            if(choice == 0):
+                continue
+            elif(choice == 1):
+                os.system('clear')
+                search = input("Search Items... ")
+                res = userObj.searchInStock(search)
+                for row in res:
+                    print(row)
+                choice = int(input("Please make a selection..."))
+            elif(choice == 2):
+                os.system('clear')
+                search = input("Search Items... ")
+                res = userObj.searchInStock(search)
+                for row in res:
+                    print(row)
+                choice = int(input("Please make a selection..."))
+            elif(choice == 3):
+                os.system('clear')
+                choice2 = input('Filter on category y/n? ')
+                if choice2 == 'y':
+                    category = input('Select a category... ')
+                    res = userObj.viewInStock('category', category)
+                else:
+                    res = userObj.viewInStock('all', '')
+                for row in res:
+                    print(row)
+                choice = int(input("Please make a selection..."))
+            elif(choice == 4):
+                os.system('clear')
+                i = 0
+                attr = ['First Name', 'Last Name', 'Username', 'Email', 
+                        'Password', 'Addr1', 'Addr2', 'City', 'State', 
+                        'Zip', 'Card No', 'Exp Date', 'CCV',]
+                res = userObj.viewAccount(uname)
+                print('Account Information: ')
+                for row in res:
+                    for col in row:
+                        print(attr[i], col)
+                        i+=1
+                choice = int(input("Please make a selection..."))
+            elif(choice == 5):
+                os.system('clear')
+                print("My Cart: ")
+                res = userObj.viewCart(uname)
+                for row in res:
+                    for col in row:
+                        print(attr[i], col)
+                        i+=1
+                choice = int(input("Please make a selection..."))
+            elif(choice == 6):
+                os.system('clear')
+                defaultVal = '%'
+                print("My Orders: ")
+                orders = userObj.viewOrders(defaultVal, uname)
+                for row in orders:
+                    print(row)
+                choice = int(input("Please make a selection..."))
+            elif(choice == 7):
+                os.system('clear')
+                logout = userObj.logout()
+                break
+            else:
+                print('Choice Error')
+        else: 
+            print("Choice Error")
 
 def main():
     exitProg = False
@@ -289,11 +369,6 @@ if __name__ == '__main__':
 
         res = cur.fetchall()
         return res
-    
-    def viewAllOrders():
-        cur = sqlConn.cursor()
-
-        return 1
 '''
 '''    
 
