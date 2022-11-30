@@ -240,12 +240,14 @@ def displayUserMenu():
                     case '5':
                         os.system('clear')
                         print('Logging Out...')
+                        db.closeConn()
                         logoutInd = user.logout()
                     case '6':
                         os.system('clear')
                         try:
                             if(user.deleteAcct()):
                                 print('Delete Successful')
+                            db.closeConn()
                             logoutInd = user.logout()
                         except:
                             continue
