@@ -20,9 +20,8 @@ class DATABASE:
             self.cur = dbConn.cursor(buffered= True)
             self.query = q
             self.cur.execute(self.query)
-            if(('INSERT' in q)or('DELETE' in q)or('UPDATE' in q)):
-                dbConn.commit()
-            if (self.cur != None or self.cur.fetchall() != None): 
+            dbConn.commit()
+            if (self.cur != None and self.cur.fetchall() != None): 
                 self.res = self.cur.fetchall()
             self.cur.close()
             return self.res
