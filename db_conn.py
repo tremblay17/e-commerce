@@ -1,7 +1,6 @@
 from errno import errorcode
-from pickle import TRUE
 import getpass, os
-##from signal import pause
+from signal import pause
 from unicodedata import category
 import mysql.connector as mysql
 from mysql.connector import Error
@@ -17,10 +16,15 @@ class DATABASE:
     def exeQuery(self, q=''):
         dbConn=self.sqlConn
         #Executes given query
-        self.cur = dbConn.cursor(buffered= True)
-        self.query = q
-        self.cur.execute(self.query)
-        dbConn.commit()
-        self.res = self.cur.fetchall()
-        self.cur.close()
-        return self.res
+        try:
+            self.cur = dbConn.cursor(buffered= True)
+            self.query = q
+            self.cur.execute(self.query)
+            if(('INSERT' in q)or('DELETE' in q)or('UPDATE' in q)):
+                dbConn.commit()
+            if (self.cur != None or self.cur.fetchall() != None): 
+                self.res = self.cur.fetchall()
+            self.cur.close()
+            return self.res
+        except mysql.Error as err:
+            print("Sorry there seems to be an error: {}".format(err))

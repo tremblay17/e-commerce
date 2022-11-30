@@ -16,17 +16,14 @@ class PRODUCT:
     '''adds or subtracts from quantity based on input of mod. positive for addition, negative for subtraction'''
     def modQuant(self, mod):
 
-        res1 = self.db.exeQuery('SELECT itemQuantity FROM INVENTORY'
-                            f'WHERE itemName={self.name};')
+        res1 = self.db.exeQuery(f'SELECT itemQuantity FROM INVENTORY WHERE itemName={self.name};')
         for itemQuantity in res1:
             self.quantity = 0 + itemQuantity
 
 
 
         self.quantity += mod
-        res2 = self.db.exeQuery('UPDATE INVENTORY '
-                            f'SET {self.quantity} '
-                            f'WHERE itemName={self.name};')
+        res2 = self.db.exeQuery(f'UPDATE INVENTORY SET {self.quantity} WHERE itemName={self.name};')
         
 
         

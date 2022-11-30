@@ -6,8 +6,7 @@ from inventory import *
 from product import *
 
 def displayLogin():
-    ##os.system('clear')
-    choice = input("Choose login or register or exit: ")
+    choice = input("\nChoose login or register or exit: ")
     if choice == 'login':
         print("Login ")
         username = input("Username: ")
@@ -19,17 +18,17 @@ def displayLogin():
             for i in res:
                 print(i)
                 for j in i:
-                    fname=i[j]
-                    lname=i[j+1]
-                    uname=i[j+2]
-                    email=i[j+3]
-                    password=i[j+4]
-                    addr1=i[j+5]
-                    addr2=i[j+6]
-                    city=i[j+7]
-                    state=i[j+8]
-                    zip=i[j+9]
-                    payment=i[j+10]
+                    fname=i[0]
+                    lname=i[1]
+                    uname=i[2]
+                    email=i[3]
+                    password=i[4]
+                    addr1=i[5]
+                    addr2=i[6]
+                    city=i[7]
+                    state=i[8]
+                    zip=i[9]
+                    payment=i[10]
                     break
             return USER(fname, lname, uname, email, password, addr1, addr2, city, state, zip, payment)
         else:
@@ -52,7 +51,7 @@ def displayLogin():
                 case 3:
                     print('Invalid Password', auth)
                 case 4:
-                    print('In alid Username', auth)
+                    print('Invalid Username', auth)
                 case 5:
                     print('Invalid Email', auth)
                 case _:
@@ -142,7 +141,7 @@ def displayAccountInfo(user):
 def displayOrderInfo(user):
     print(f'Orders of {user.getUName()}: ')
     #Call View Orders Method
-    ords = user.viewOrders(cols='orderId, numItems', cond=f'uname = "{user.getUName()}" OR email = "{user.getEmail()}"')
+    ords = user.viewOrders(cols='orderId, numItems', cond=f'uname = "{user.getUName()}"')
     for i in range(len(ords)):
         for j in i:
             print(j, sep=' ')
@@ -162,32 +161,32 @@ def displayInventory(user):
     choice = input('You may select an ID to add it to your cart(n to skip): ')
     while(choice != 'n'):
         try:
-            inv.AddToCart(user.getUName, choice, 1)
+            inv.AddToCart(user.getUName(), choice, 1)
         except:
             print("Id not found, please try again.")
         choice = input('Item added to cart. You may select another ID to add it to your cart(n to skip): ')
     
 def displayCart(user):
     cart = CART()
-    itemList = cart.get_CartContents(user.getUName)
+    itemList = cart.get_CartContents(user.getUName())
     for item in itemList:
         for val in item:
             print(val, sep=' ')
     choice = input('You may select c to checkout, or select an ID to remove it from your cart(n to skip): ')
     while(choice != 'n'):
         if choice == 'c':
-            cart.CheckOut(user.getUName)
+            cart.CheckOut(user.getUName())
             print("Checkout complete. Check your orders for more info. Returning to main menu.")
             choice = 'n'
         else:
             try:
-                cart.Remove_Item(user.getUName, choice,)
-                itemList = cart.get_CartContents(user.getUName)
+                cart.Remove_Item(user.getUName(), choice,)
+                itemList = cart.get_CartContents(user.getUName())
                 for item in itemList:
                     for val in item:
                         print(val, sep=' ')
             except:
-                print("Id not found, please try again.")
+                print("ID not found, please try again.")
             choice = input('You may select c to checkout, or you may select another ID to remove from your cart(n to skip): ')
 
 
@@ -199,12 +198,13 @@ def displayUserMenu():
         if user == False:
             print('Authentication Error')
         elif isinstance(user, USER):
-            ##os.system('clear')
+            os.system('clear')
             logoutInd = False
             while logoutInd == False:
-                ##os.system('clear')
+                #os.system('clear')
+                print('\n')
                 print(f"Welcome to eGulf! {user.getUName()}\n")
-                choice = int(input('Please Choose One: \n'
+                choice = (input('Please Choose One: \n'
                         '1: View Inventory\n'
                         '2: View My Cart\n' 
                         '3: View Account Info\n' #Calls Display Method
@@ -213,50 +213,50 @@ def displayUserMenu():
                         '6: Delete Account\n' #Call Delete Acct Method
                         'Choice: '))
                 match (choice):
-                    case 1:
-                        ##os.system('clear')
+                    case '1':
+                        os.system('clear')
                         try:
                             displayInventory(user)
                         except:
                             continue
-                    case 2:
-                        ##os.system('clear')
+                    case '2':
+                        os.system('clear')
                         try:
                             displayCart(user)
                         except:
                             continue
-                    case 3:
-                        ##os.system('clear')
+                    case '3':
+                        os.system('clear')
                         try:
                             displayAccountInfo(user)
                         except:
                             continue
-                    case 4:
-                        ##os.system('clear')
+                    case '4':
+                        os.system('clear')
                         try: 
                             displayOrderInfo(user)
                         except:
                             continue
-                    case 5:
-                        ##os.system('clear')
+                    case '5':
+                        os.system('clear')
                         print('Logging Out...')
                         logoutInd = user.logout()
-                    case 6:
-                        ##os.system('clear')
+                    case '6':
+                        os.system('clear')
                         try:
                             user.deleteAcct()
                             logoutInd = user.logout()
                         except:
                             continue
                     case _:
-                        ##os.system('clear')
+                        os.system('clear')
                         print('Choice is Invalid')
         elif user == 'exit':
             exitInd = True
         else:
             print('Unkown Error')
             continue
-    ##os.system('clear')
+    os.system('clear')
     print('Exiting...')
 
 def main():
