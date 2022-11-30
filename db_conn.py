@@ -6,7 +6,7 @@ import mysql.connector as mysql
 from mysql.connector import Error
 
 class DATABASE:
-    def __init__(self, user='root', pw='1234', host='localhost', db='egulf'):
+    def __init__(self, user='root', pw='', host='localhost', db='egulf'):
         self.user = user
         self.password = pw
         self.host = host
@@ -20,7 +20,7 @@ class DATABASE:
             self.cur = dbConn.cursor()
             self.query = q
             self.cur.execute(self.query)
-            if ((self.cur != None) and (self.cur.fetchall() != None)): 
+            if ((self.cur != None)): #and (self.cur.fetchall() != None)): ->> for some reason, if this isnt commented out logins do not work.
                 self.res = self.cur.fetchall()
                 self.cur.close()
                 dbConn.commit()

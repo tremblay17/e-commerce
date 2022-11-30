@@ -13,7 +13,7 @@ def displayLogin():
         passwd = input("Password: ")
         fname, lname, uname, email, password, addr1, addr2, city, state, zip, payment = '','','','','','','','','','',''
         auth = login(username, passwd)
-        if(auth):
+        if(auth == 1):
             res = db.exeQuery(f"SELECT * FROM USERS WHERE uname='{username}' AND password='{passwd}';")
             for i in res:
                 print(i)
@@ -42,20 +42,20 @@ def displayLogin():
         password = input('Password: ')
         confirmPwd = input('Confirm Password: ')
         auth = register(fname, lname, username, email, password, confirmPwd)
-        if(auth):
+        if(auth == 1):
             return USER(fname, lname, username, email, password)
         else:
             match(auth):
                 case 2:
-                    print('Passwords Do Not Match', auth)
+                    print('Passwords Do Not Match')
                 case 3:
-                    print('Invalid Password', auth)
+                    print('Invalid Password - should be between 6 and 15 characters')
                 case 4:
-                    print('Invalid Username', auth)
+                    print('Invalid Username - should be at least 4 characters, begenning with a letter')
                 case 5:
-                    print('Invalid Email', auth)
+                    print('Invalid Email - should be in form of "_@_._"')
                 case _:
-                    print('Registration Error', auth)
+                    print('Registration Error')
             return auth
     elif choice == 'exit':
         return 'exit'
@@ -198,10 +198,10 @@ def displayUserMenu():
         if user == False:
             print('Authentication Error')
         elif isinstance(user, USER):
-            os.system('clear')
+            #os.system('clear')
             logoutInd = False
             while logoutInd == False:
-                #os.system('clear')
+                os.system('clear')
                 print('\n')
                 print(f"Welcome to eGulf! {user.getUName()}\n")
                 choice = (input('Please Choose One: \n'
@@ -220,11 +220,11 @@ def displayUserMenu():
                         except:
                             continue
                     case '2':
-                        os.system('clear')
-                        try:
-                            displayCart(user)
-                        except:
-                            continue
+                        #os.system('clear')
+                        #try:
+                        displayCart(user)
+                        #except:
+                            #continue
                     case '3':
                         os.system('clear')
                         try:
@@ -240,14 +240,14 @@ def displayUserMenu():
                     case '5':
                         os.system('clear')
                         print('Logging Out...')
-                        db.closeConn()
+                        #db.closeConn()
                         logoutInd = user.logout()
                     case '6':
                         os.system('clear')
                         try:
                             if(user.deleteAcct()):
                                 print('Delete Successful')
-                            db.closeConn()
+                            #db.closeConn()
                             logoutInd = user.logout()
                         except:
                             continue
