@@ -136,7 +136,7 @@ def displayAccountInfo(user):
             else:
                 print('Invalid Card Number')
         case _:
-            print('Invalid Input')
+            print('')
 
 def displayOrderInfo(user):
     print(f'Orders of {user.getUName()}: ')
@@ -163,7 +163,7 @@ def displayInventory(user):
         try:
             inv.AddToCart(user.getUName(), choice, 1)
         except:
-            print("Id not found, please try again.")
+            print("ID not found, please try again.")
         choice = input('Item added to cart. You may select another ID to add it to your cart(n to skip): ')
     
 def displayCart(user):
@@ -244,7 +244,8 @@ def displayUserMenu():
                     case '6':
                         os.system('clear')
                         try:
-                            user.deleteAcct()
+                            if(user.deleteAcct()):
+                                print('Delete Successful')
                             logoutInd = user.logout()
                         except:
                             continue
