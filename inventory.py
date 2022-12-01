@@ -35,8 +35,7 @@ class INVENTORY:
         return res
 
     def AddToCart(self, username, itemId, amount):
-        resItem = self.db.exeQuery('SELECT itemName, itemPrice, itemQuantity FROM INVENTORY'
-            f'WHERE itemId="{itemId}";')
+        resItem = self.db.exeQuery(f'SELECT itemName, itemPrice, itemQuantity FROM INVENTORY WHERE itemId="{itemId}";')
         for inm, ipr, iqt in resItem:
             itemName = inm
             itemPrice = ipr

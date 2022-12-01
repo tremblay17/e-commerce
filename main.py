@@ -13,7 +13,7 @@ def displayLogin():
         passwd = input("Password: ")
         fname, lname, uname, email, password, addr1, addr2, city, state, zip, payment = '','','','','','','','','','',''
         auth = login(username, passwd)
-        if(auth):
+        if(auth == 1):
             res = db.exeQuery(f"SELECT * FROM USERS WHERE uname='{username}' AND password='{passwd}';")
             for i in res:
                 print(i)
@@ -42,20 +42,20 @@ def displayLogin():
         password = input('Password: ')
         confirmPwd = input('Confirm Password: ')
         auth = register(fname, lname, username, email, password, confirmPwd)
-        if(auth):
+        if(auth == 1):
             return USER(fname, lname, username, email, password)
         else:
             match(auth):
                 case 2:
-                    print('Passwords Do Not Match', auth)
+                    print('Passwords Do Not Match')
                 case 3:
-                    print('Invalid Password', auth)
+                    print('Invalid Password - should be between 6 and 15 characters')
                 case 4:
-                    print('Invalid Username', auth)
+                    print('Invalid Username - should be at least 4 characters, begenning with a letter')
                 case 5:
-                    print('Invalid Email', auth)
+                    print('Invalid Email - should be in form of "_@_._"')
                 case _:
-                    print('Registration Error', auth)
+                    print('Registration Error')
             return auth
     elif choice == 'exit':
         return 'exit'
@@ -142,22 +142,28 @@ def displayOrderInfo(user):
     print(f'Orders of {user.getUName()}: ')
     #Call View Orders Method
     ords = user.viewOrders(cols='orderId, numItems', cond=f'uname = "{user.getUName()}"')
-    for i in range(len(ords)):
+    print('OrderID | number of Items')
+    for i in ords:
         for j in i:
-            print(j, sep=' ')
+            print(j, end = ' | ')
+        print(' ')
     choice = input('You may select Order ID you want to view(n to skip): ')
     if choice != 'n':
         ords = user.viewOrders(cond=f'uname = "{user.getUName()}" AND orderID = "{choice}"')
+        print('OrderID | username | number of Items| total cost')
         for i in ords:
             for j in i:
-                print(j, sep=' ')
+                print(j, end=' | ')
+            print(' ')
 
 def displayInventory(user):
     inv = INVENTORY()
     itemList = inv.GetInventory()
+    print("ID | price | name | quantity")
     for item in itemList:
         for val in item:
-            print(val, sep=' ')
+            print(val, end=' | ')
+        print(' ')
     choice = input('You may select an ID to add it to your cart(n to skip): ')
     while(choice != 'n'):
         try:
@@ -169,25 +175,22 @@ def displayInventory(user):
 def displayCart(user):
     cart = CART()
     itemList = cart.get_CartContents(user.getUName())
+    print("item ID | name | quantity")
     for item in itemList:
         for val in item:
-            print(val, sep=' ')
-    choice = input('You may select c to checkout, or select an ID to remove it from your cart(n to skip): ')
+            print(val, end=' | ')
+        print(' ')
+    totcost = cart.get_TotalCost(user.getUName())
+    print('You may select c to checkout for a total of $',totcost, end = "") 
+    choice = input(', or select an ID to remove it from your cart(n to skip): ')
     while(choice != 'n'):
         if choice == 'c':
-            cart.CheckOut(user.getUName())
+            cart.Checkout(user.getUName())
             print("Checkout complete. Check your orders for more info. Returning to main menu.")
             choice = 'n'
         else:
-            try:
-                cart.Remove_Item(user.getUName(), choice,)
-                itemList = cart.get_CartContents(user.getUName())
-                for item in itemList:
-                    for val in item:
-                        print(val, sep=' ')
-            except:
-                print("ID not found, please try again.")
-            choice = input('You may select c to checkout, or you may select another ID to remove from your cart(n to skip): ')
+            cart.Remove_Item(user.getUName(), choice)
+            choice = 'n'
 
 
 
@@ -198,7 +201,7 @@ def displayUserMenu():
         if user == False:
             print('Authentication Error')
         elif isinstance(user, USER):
-            os.system('clear')
+            #os.system('clear')
             logoutInd = False
             while logoutInd == False:
                 #os.system('clear')
@@ -221,10 +224,10 @@ def displayUserMenu():
                             continue
                     case '2':
                         os.system('clear')
-                        try:
-                            displayCart(user)
-                        except:
-                            continue
+                        #try:
+                        displayCart(user)
+                        #except:
+                            #continue
                     case '3':
                         os.system('clear')
                         try:
@@ -240,12 +243,14 @@ def displayUserMenu():
                     case '5':
                         os.system('clear')
                         print('Logging Out...')
+                        #db.closeConn()
                         logoutInd = user.logout()
                     case '6':
                         os.system('clear')
                         try:
                             if(user.deleteAcct()):
                                 print('Delete Successful')
+                            #db.closeConn()
                             logoutInd = user.logout()
                         except:
                             continue

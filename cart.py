@@ -8,9 +8,9 @@ class CART:
     def __init__ (self):
         self.db = DATABASE()
     
-    def get_CARTContents(self,username):
+    def get_CartContents(self,username):
         #returns all items (and their quantities) in given user's CARTS
-        res = self.db.exeQuery(f'SELECT itemID, quantity_in_CARTS FROM CARTS WHERE uname = "{username}";')
+        res = self.db.exeQuery(f'SELECT itemId, itemName, itemQuantity FROM CARTS WHERE uname = "{username}";')
         return res
         
     def Remove_Item(self,username, itemID):
@@ -19,20 +19,24 @@ class CART:
     
     def get_TotalCost(self,username):
         #returns the combined cost of all items in CARTS belonging to the user
-        res = self.db.exeQuery(f'SELECT SUM(item_price * quantity_in_CARTS) FROM CARTS WHERE uname = "{username}";')
-        return res
+        res = self.db.exeQuery(f'SELECT SUM(itemPrice * itemQuantity) FROM CARTS WHERE uname = "{username}";')
+        for i in res:
+            for j in i:
+                return j
 
     def Checkout(self,username):
-        #decreases inventory stock by amount of given items in user's CARTS  
-        res1 = self.db.exeQuery(f'UPDATE INVENTORY JOIN CARTS ON INVENTORY.itemID = CARTS.itemID SET INVENTORY.quantity = INVENTORY.quantity - CARTS.quantity_in_CARTS WHERE CARTS.uname = "{username}";')
+        res = self.db.exeQuery(f'SELECT itemId FROM CARTS WHERE uname = "{username}";')
+        for i in res:
+            for j in i:
+                self.db.exeQuery(f'UPDATE INVENTORY SET itemQuantity=itemQuantity-1 WHERE itemId = "{j}"')
 
-        CART = CART()
-        totalCost = CART.get_TotalCost(username)
+        cart = CART()
+        totalCost = cart.get_TotalCost(username)
         numItems = 0
-        contents = CART.get_CARTContents(username)
-        for itemId, quantity in contents:
+        contents = cart.get_CartContents(username)
+        for itemId, itemName, quantity in contents:
             numItems += quantity
         #adds an order
-        res3 = self.db.exeQuery(f'INSERT INTO ORDERS (uname, numItems, subtotal) VALUES ("{username}","{numItems}","{totalCost}");')
+        self.db.exeQuery(f'INSERT INTO ORDERS (uname, numItems, subtotal) VALUES ("{username}","{numItems}","{totalCost}");')
         #deletes all of given user's items from CARTS
-        res2 = self.db.exeQuery(f'DELETE FROM CARTS WHERE uname = "{username}";')
+        self.db.exeQuery(f'DELETE FROM CARTS WHERE uname = "{username}";')
